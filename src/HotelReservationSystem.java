@@ -1,13 +1,14 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class HotelReservationSystem {
 
-    private static final  String url = "jdbc:mysql://localhost:3306/?user=root";
+    private static final  String url = "jdbc:mysql://localhost:3306/hotel_db";
 
     private static final  String username = "root";
 
@@ -25,6 +26,7 @@ public class HotelReservationSystem {
 
         try{
             Connection connection = DriverManager.getConnection(url, username, password);
+            Statement statement = connection.createStatement();
             System.out.println("Succesful connection with database");
 
             while(true){
@@ -40,6 +42,9 @@ public class HotelReservationSystem {
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
                 switch (choice) {
+                    case 1:
+                        reserveRoom(connection, scanner, statement);
+                        break;
 
                     case 0:
                         exit();
@@ -54,6 +59,33 @@ public class HotelReservationSystem {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void reserveRoom(Connection connection, Scanner scanner, Statement statement) {
+        try {
+            System.out.print("Enter guest name: ");
+            String guestName = scanner.next();
+            scanner.nextLine();
+            System.out.print("Enter room number: ");
+            int roomNumber = scanner.nextInt();
+            System.out.print("Enter contact number: ");
+            String contactNumber = scanner.next();
+
+            String sql = "INSERT INTO reservations (guest_name, room_nmber, contact_number) " +
+                    "VALUES ('" + guestName + "', " + roomNumber + ", '" + contactNumber + "')";
+
+            try (statement) {
+                int affectedRows = statement.executeUpdate(sql);
+
+                if (affectedRows > 0) {
+                    System.out.println("Reservation successful!");
+                } else {
+                    System.out.println("Reservation failed.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
