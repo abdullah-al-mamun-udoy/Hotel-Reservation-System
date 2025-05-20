@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -45,6 +42,9 @@ public class HotelReservationSystem {
                     case 1:
                         reserveRoom(connection, scanner, statement);
                         break;
+                    case 2:
+                        viewReservations(connection, statement);
+                        break;
 
                     case 0:
                         exit();
@@ -86,6 +86,34 @@ public class HotelReservationSystem {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void viewReservations(Connection connection, Statement statement) throws SQLException {
+        String sql = "SELECT reservation_id, guest_name, room_nmber, contact_number, reservation_date FROM reservations";
+
+        try (statement) {
+
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            System.out.println("Current Reservations:");
+            System.out.println("+----------------+-----------------+---------------+----------------------+-------------------------+");
+            System.out.println("| Reservation ID | Guest           | Room Number   | Contact Number      | Reservation Date        |");
+            System.out.println("+----------------+-----------------+---------------+----------------------+-------------------------+");
+
+            while (resultSet.next()) {
+                int reservationId = resultSet.getInt("reservation_id");
+                String guestName = resultSet.getString("guest_name");
+                int roomNumber = resultSet.getInt("room_nmber");
+                String contactNumber = resultSet.getString("contact_number");
+                String reservationDate = resultSet.getTimestamp("reservation_date").toString();
+
+                // Format and display the reservation data in a table-like format
+                System.out.printf("| %-14d | %-15s | %-13d | %-20s | %-19s   |\n",
+                        reservationId, guestName, roomNumber, contactNumber, reservationDate);
+            }
+
+            System.out.println("+----------------+-----------------+---------------+----------------------+-------------------------+");
         }
     }
 
